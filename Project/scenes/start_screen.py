@@ -5,12 +5,15 @@ from utils.terminate import terminate
 
 
 def start_screen(width, height, fps, screen, clock):
+    pygame.display.set_caption("Старт")
+
     intro_text = ["AMAZEMENT", "", "Для старта нажмите любую кнопку"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (width, height))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
+
     for line in intro_text:
         string_rendered = font.render(line, 1, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()

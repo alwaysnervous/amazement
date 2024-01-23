@@ -1,18 +1,15 @@
 import pygame
 import sys
 
+from utils.get_number_of_levels import get_number_of_levels
 from utils.load_image import load_image
 from utils.load_level import load_level
 from utils.terminate import terminate
 
 from scenes.start_screen import start_screen
+from scenes.level_choice_screen import level_choice_screen
 
-try:
-    level_name = input('Введите имя файла с уровнем:\n').strip()
-    MAP = load_level(level_name, 5, 5)
-except FileNotFoundError:
-    print('Такого файла не существует!')
-    sys.exit()
+from labyrinth.labyrith_generation import Labyrinth, level_view_of_the_matrix
 
 pygame.init()
 
@@ -20,6 +17,7 @@ FPS = 50
 clock = pygame.time.Clock()
 SIZE = WIDTH, HEIGHT = 550, 550
 TILE_WIDTH = TILE_HEIGHT = 50
+NUMBER_OF_LEVELS = get_number_of_levels()
 IS_COOLDOWN = False
 screen = pygame.display.set_mode(SIZE)
 
@@ -174,6 +172,19 @@ class Player(pygame.sprite.Sprite):
 
 
 start_screen(WIDTH, HEIGHT, FPS, screen, clock)
+selected_level_number = level_choice_screen(screen)
+MAP = None
+
+if selected_level_number + 1 < NUMBER_OF_LEVELS:
+    try:
+        MAP = load_level(f'map{selected_level_number + 1}.txt', 5, 5)
+    except FileNotFoundError:
+        print('Такого файла не существует!')
+        sys.exit()
+else:
+    labyrinth = Labyrinth(20, 20)
+    level_view_of_the_matrix(labyrinth.create_labyrinth())
+    MAP = load_level('map_generated.txt', 5, 5)
 
 vignette_image = load_image('vignette.png')
 player = None

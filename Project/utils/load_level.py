@@ -11,7 +11,7 @@ def load_level(filename, pos_x, pos_y) -> list:
     with open(filename, 'r') as map_file:
         map_file = tuple(map_file)
         start_point = tuple(map(int, map_file[0].split()))
-        finish_point = tuple(map(int, map_file[1].split()))
+        # finish_point = tuple(map(int, map_file[1].split()))
         level_map = [line.strip() for line in map_file[2:]]
 
     max_width = max(map(len, level_map))
