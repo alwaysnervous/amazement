@@ -20,6 +20,7 @@ TILE_WIDTH = TILE_HEIGHT = 50
 SCORE = 0
 CLOCK = pygame.time.Clock()
 NUMBER_OF_LEVELS = get_number_of_levels()
+FONT = pygame.font.Font(None, 36)
 IS_COOLDOWN = False
 RUNNING = True
 SCREEN = pygame.display.set_mode(SIZE)
@@ -271,5 +272,8 @@ while RUNNING:
     tiles_group.draw(SCREEN)
     player_group.draw(SCREEN)
     SCREEN.blit(vignette_image, (0, 0))
+    text = FONT.render(str(SCORE), True, (255, 255, 255))
+    SCREEN.blit(text, (60, 24))
+    SCREEN.blit(tile_images['coin'], (10, 10))
     pygame.display.flip()
     CLOCK.tick(FPS)

@@ -24,10 +24,10 @@ def level_choice_screen(screen):
                 elif event.key == pygame.K_RETURN:
                     return selected_level
 
-        screen.fill((255, 255, 255))
+        screen.fill((0, 0, 0))
 
         for i, level in enumerate(levels):
-            text = font.render(level, True, (0, 0, 255) if i == selected_level else (0, 0, 0))
+            text = font.render(level, True, (0, 0, 255) if i == selected_level else (255, 255, 255))
             screen.blit(text, (100, 100 + i * 40))
 
         pygame.display.flip()
