@@ -1,6 +1,7 @@
 import random
 import os
 
+
 class Labyrinth:
     def __init__(self, n, m):
         self.n = (n + 2) // 2
@@ -96,6 +97,15 @@ def level_view_of_the_matrix(matrix_and_points: [list, tuple, tuple]):
     empty_sign = '.'
     finish_sign = '~'
 
+    def replace_random_dots(s: str, replacement: str = 'c', num_replacements: int = 1) -> str:
+        s = list(s)
+        dot_indices = [i for i, char in enumerate(s) if char == '.']
+        random.shuffle(dot_indices)
+        for i in dot_indices[:num_replacements]:
+            s[i] = replacement
+        return ''.join(s)
+
+    # Приведение матрицы в игровой вид
     matrix, start, finish = matrix_and_points
     matrix = [[empty_sign if cell else wall_sign for cell in row] for row in matrix]
     matrix[start[1]][start[0]] = character_sign
@@ -106,9 +116,8 @@ def level_view_of_the_matrix(matrix_and_points: [list, tuple, tuple]):
         print(finish[0] + 1, finish[1] + 1, file=map_file)
         print('#' * (len(matrix[0]) + 1), file=map_file)
         for row in matrix:
-            print('#', *row, sep='', file=map_file)
+            print('#', replace_random_dots(''.join(row), 'c', len(matrix[0]) // 7), sep='', file=map_file)
 
 
-labyrinth = Labyrinth(20, 20)
-
-level_view_of_the_matrix(labyrinth.create_labyrinth())
+labyrinth_new = Labyrinth(20, 20)
+level_view_of_the_matrix(labyrinth_new.create_labyrinth())

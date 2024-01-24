@@ -7,7 +7,7 @@ def level_choice_screen(screen):
 
     font = pygame.font.Font(None, 36)
 
-    levels = ["Уровень 1", "Уровень 2", "Уровень 3", "Генерация уровней"]
+    levels = ["Уровень 1", "Уровень 2", "Уровень 3", "Случайная генерация уровней"]
 
     selected_level = 0
 

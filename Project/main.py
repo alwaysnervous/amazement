@@ -8,24 +8,28 @@ from utils.terminate import terminate
 
 from scenes.start_screen import start_screen
 from scenes.level_choice_screen import level_choice_screen
+from scenes.end_screen import end_screen
 
 from labyrinth.labyrith_generation import Labyrinth, level_view_of_the_matrix
 
 pygame.init()
 
 FPS = 50
-clock = pygame.time.Clock()
 SIZE = WIDTH, HEIGHT = 550, 550
 TILE_WIDTH = TILE_HEIGHT = 50
+SCORE = 0
+CLOCK = pygame.time.Clock()
 NUMBER_OF_LEVELS = get_number_of_levels()
 IS_COOLDOWN = False
-screen = pygame.display.set_mode(SIZE)
+RUNNING = True
+SCREEN = pygame.display.set_mode(SIZE)
 
 
 tile_images = {
     'wall': load_image('stone.png'),
     'empty': load_image('parquet.png'),
-    'finish': load_image('ladder.png')
+    'finish': load_image('ladder.png'),
+    'coin': load_image('coin.png')
 }
 player_image = load_image('character.png')
 player_image_states = {'direction': 'RIGHT', 'stepped': False}
@@ -45,7 +49,29 @@ def generate_level(level):
             elif level[y][x] == '@':
                 Tile('empty', x, y)
                 new_player = Player(x, y)
+            elif level[y][x] == 'c':
+                Tile('empty', x, y)
+                Tile('coin', x, y)
     return new_player, x, y
+
+
+def new_load_level_screen():
+    global MAP, RUNNING, SELECTED_LEVEL_NUMBER
+    RUNNING = False
+    selected_level_number_new = level_choice_screen(SCREEN)
+    SELECTED_LEVEL_NUMBER = selected_level_number_new
+    if selected_level_number_new + 1 < NUMBER_OF_LEVELS:
+        try:
+            MAP = load_level(f'map_{selected_level_number_new + 1}.txt', 5, 5)
+            RUNNING = True
+        except FileNotFoundError:
+            print('Такого файла не существует!')
+            sys.exit()
+    else:
+        RUNNING = True
+        labyrinth_new = Labyrinth(20, 20)
+        level_view_of_the_matrix(labyrinth_new.create_labyrinth())
+        MAP = load_level('map_generated.txt', 5, 5)
 
 
 class Tile(pygame.sprite.Sprite):
@@ -67,7 +93,9 @@ class Player(pygame.sprite.Sprite):
         global MAP
 
         def left():
-            if MAP[self.y][self.x - 1] != '#':
+            cell_to_move = MAP[self.y][self.x - 1]
+            if cell_to_move != '#':
+                self.check_finish_and_coin(cell_to_move)
                 for line_number in range(len(MAP)):
                     self.map_shift('RIGHT', line_number)
                     self.change_at_to_dot(line_number)
@@ -75,7 +103,9 @@ class Player(pygame.sprite.Sprite):
                 self.set_at_by_x_and_y()
 
         def right():
-            if MAP[self.y][self.x + 1] != '#':
+            cell_to_move = MAP[self.y][self.x + 1]
+            if cell_to_move != '#':
+                self.check_finish_and_coin(cell_to_move)
                 for line_number in range(len(MAP)):
                     self.map_shift('LEFT', line_number)
                     self.change_at_to_dot(line_number)
@@ -83,14 +113,18 @@ class Player(pygame.sprite.Sprite):
                 self.set_at_by_x_and_y()
 
         def up():
-            if MAP[self.y - 1][self.x] != '#':
+            cell_to_move = MAP[self.y - 1][self.x]
+            if cell_to_move != '#':
+                self.check_finish_and_coin(cell_to_move)
                 self.map_shift('DOWN')
                 for line_number in range(len(MAP)):
                     self.change_at_to_dot(line_number)
                 self.set_at_by_x_and_y()
 
         def down():
-            if MAP[self.y + 1][self.x] != '#':
+            cell_to_move = MAP[self.y + 1][self.x]
+            if cell_to_move != '#':
+                self.check_finish_and_coin(cell_to_move)
                 self.map_shift('UP')
                 for line_number in range(len(MAP)):
                     self.change_at_to_dot(line_number)
@@ -107,6 +141,17 @@ class Player(pygame.sprite.Sprite):
 
         # print('-' * 15)
         # print(*(''.join(row) for row in MAP), sep='\n')
+
+    @staticmethod
+    def check_finish_and_coin(cell_to_move):
+        global SCORE
+
+        if cell_to_move == '~':
+            result = end_screen(SCREEN, SCORE, SELECTED_LEVEL_NUMBER + 1)
+            if not result:
+                new_load_level_screen()
+        if cell_to_move == 'c':
+            SCORE += 1
 
     @staticmethod
     def map_shift(map_shift_direction, i=None):
@@ -171,13 +216,13 @@ class Player(pygame.sprite.Sprite):
         player_image_states['stepped'] = not player_image_states['stepped']
 
 
-start_screen(WIDTH, HEIGHT, FPS, screen, clock)
-selected_level_number = level_choice_screen(screen)
+start_screen(WIDTH, HEIGHT, FPS, SCREEN, CLOCK)
+SELECTED_LEVEL_NUMBER = level_choice_screen(SCREEN)
 MAP = None
 
-if selected_level_number + 1 < NUMBER_OF_LEVELS:
+if SELECTED_LEVEL_NUMBER + 1 < NUMBER_OF_LEVELS:
     try:
-        MAP = load_level(f'map{selected_level_number + 1}.txt', 5, 5)
+        MAP = load_level(f'map_{SELECTED_LEVEL_NUMBER + 1}.txt', 5, 5)
     except FileNotFoundError:
         print('Такого файла не существует!')
         sys.exit()
@@ -188,8 +233,8 @@ else:
 
 vignette_image = load_image('vignette.png')
 player = None
-running = True
-while running:
+while RUNNING:
+    pygame.display.set_caption(f'Уровень {SELECTED_LEVEL_NUMBER + 1}')
     WIDTH, HEIGHT = pygame.display.get_window_size()
     all_sprites = pygame.sprite.Group()
     tiles_group = pygame.sprite.Group()
@@ -215,14 +260,16 @@ while running:
         if keys[pygame.K_DOWN]:
             player.move('DOWN')
             IS_COOLDOWN = True
+        if keys[pygame.K_ESCAPE]:
+            new_load_level_screen()
     else:
         pygame.time.wait(200)
         IS_COOLDOWN = False
 
     player, level_x, level_y = generate_level(MAP)
-    screen.fill(pygame.Color(0, 0, 0))
-    tiles_group.draw(screen)
-    player_group.draw(screen)
-    screen.blit(vignette_image, (0, 0))
+    SCREEN.fill(pygame.Color(0, 0, 0))
+    tiles_group.draw(SCREEN)
+    player_group.draw(SCREEN)
+    SCREEN.blit(vignette_image, (0, 0))
     pygame.display.flip()
-    clock.tick(FPS)
+    CLOCK.tick(FPS)
