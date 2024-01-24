@@ -10,7 +10,7 @@ from scenes.start_screen import start_screen
 from scenes.level_choice_screen import level_choice_screen
 from scenes.end_screen import end_screen
 
-from labyrinth.labyrith_generation import Labyrinth, level_view_of_the_matrix
+from labyrinth.labyrinth_generation import Labyrinth, level_view_of_the_matrix
 
 pygame.init()
 
