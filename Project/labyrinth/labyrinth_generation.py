@@ -119,5 +119,5 @@ def level_view_of_the_matrix(matrix_and_points: [list, tuple, tuple]):
             print('#', replace_random_dots(''.join(row), 'c', len(matrix[0]) // 7), sep='', file=map_file)
 
 
-labyrinth_new = Labyrinth(20, 20)
-level_view_of_the_matrix(labyrinth_new.create_labyrinth())
+# labyrinth_new = Labyrinth(20, 20)
+# level_view_of_the_matrix(labyrinth_new.create_labyrinth())
