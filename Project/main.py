@@ -149,6 +149,7 @@ class Player(pygame.sprite.Sprite):
 
         if cell_to_move == '~':
             result = end_screen(SCREEN, SCORE, SELECTED_LEVEL_NUMBER + 1)
+            SCORE = 0
             if not result:
                 new_load_level_screen()
         if cell_to_move == 'c':
@@ -223,6 +224,7 @@ MAP = None
 
 if SELECTED_LEVEL_NUMBER + 1 < NUMBER_OF_LEVELS:
     try:
+        SCORE = 0
         MAP = load_level(f'map_{SELECTED_LEVEL_NUMBER + 1}.txt', 5, 5)
     except FileNotFoundError:
         print('Такого файла не существует!')
